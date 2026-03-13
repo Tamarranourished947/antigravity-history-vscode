@@ -163,9 +163,14 @@ async function handleRefresh(): Promise<void> {
 }
 
 async function handleExport(cascadeId: string, format: string): Promise<void> {
-  const ep = cachedEndpointMap[cascadeId];
+  // Try specific endpoint first, fallback to any available endpoint
+  let ep: { port: number; csrf: string } | undefined = cachedEndpointMap[cascadeId];
   if (!ep) {
-    vscode.window.showErrorMessage('Endpoint not found. Try refreshing.');
+    const anyId = Object.keys(cachedEndpointMap)[0];
+    if (anyId) { ep = cachedEndpointMap[anyId]; }
+  }
+  if (!ep) {
+    vscode.window.showErrorMessage('No LS endpoint available. Try refreshing.');
     return;
   }
 
@@ -200,7 +205,7 @@ async function handleExport(cascadeId: string, format: string): Promise<void> {
 }
 
 async function handleExportAll(): Promise<void> {
-  const cascadeIds = Object.keys(cachedEndpointMap);
+  const cascadeIds = Object.keys(cachedConversations);
   if (cascadeIds.length === 0) {
     vscode.window.showWarningMessage('No conversations to export. Try refreshing first.');
     return;
