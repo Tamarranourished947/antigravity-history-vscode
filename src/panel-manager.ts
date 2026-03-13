@@ -71,12 +71,8 @@ export function openPanel(context: vscode.ExtensionContext): void {
           break;
         case 'openInExplorer': {
           let folderPath: string = message.path || '';
-          // Convert file:// URI to local path
-          if (folderPath.startsWith('file:///')) {
-            folderPath = decodeURIComponent(folderPath.slice(8)); // remove file:///
-          } else if (folderPath.startsWith('file://')) {
-            folderPath = decodeURIComponent(folderPath.slice(7));
-          }
+          // Convert file:// URI to local path (case-insensitive)
+          folderPath = decodeURIComponent(folderPath.replace(/^file:\/\/\//i, ''));
           if (folderPath) {
             vscode.env.openExternal(vscode.Uri.file(folderPath));
           }
@@ -270,8 +266,10 @@ function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri): stri
       <button class="seg-btn active" id="group-date">📅 Date</button>
       <button class="seg-btn" id="group-workspace">📂 Workspace</button>
     </div>
-    <button class="btn btn-icon" id="btn-expand-all" title="Expand All">▾</button>
-    <button class="btn btn-icon" id="btn-collapse-all" title="Collapse All">▸</button>
+    <div class="segmented-control">
+      <button class="seg-btn" id="btn-expand-all" title="Expand All">▾ Expand</button>
+      <button class="seg-btn" id="btn-collapse-all" title="Collapse All">▸ Collapse</button>
+    </div>
     <button class="btn btn-icon" id="btn-refresh" title="Refresh">🔄</button>
     <button class="btn btn-primary" id="btn-export-all">⬇️ Export All</button>
   </div>

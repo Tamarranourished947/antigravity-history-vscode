@@ -281,7 +281,13 @@
   function formatTime(ts) {
     if (!ts) return '–';
     try {
-      return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const d = new Date(ts);
+      const now = new Date();
+      const time = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (dateKey(d) === dateKey(now)) return time;
+      // Non-today: show date + time
+      const date = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return `${date} ${time}`;
     } catch { return ts.slice(11, 16) || '–'; }
   }
 
@@ -369,7 +375,7 @@
 
   function stripFileUri(uri) {
     if (!uri) return '';
-    return decodeURIComponent(uri.replace(/^file:\/\/\//, ''));
+    return decodeURIComponent(uri.replace(/^file:\/\/\//i, ''));
   }
 
   // ── Auto-refresh on load ──
