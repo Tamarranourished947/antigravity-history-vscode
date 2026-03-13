@@ -11,6 +11,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { discoverAndListAll, getAllTrajectories, getTrajectorySteps, TrajectorySummary } from './ls-client.js';
 import { recoverUnindexed } from './recovery.js';
+import { readCache, writeCache } from './cache.js';
 import { parseSteps, FieldLevel } from './parser.js';
 import {
   formatMarkdown,
@@ -98,12 +99,18 @@ export function refreshPanel(): void {
 
 async function handleRefresh(): Promise<void> {
   try {
+    // Step 0: Show cached data instantly (IDE restart scenario)
+    const cached = readCache();
+    if (Object.keys(cached).length > 0 && Object.keys(cachedConversations).length === 0) {
+      cachedConversations = cached;
+      postMessage({ command: 'setConversations', data: cachedConversations });
+    }
+
     // Step 1: Discover LS instances and get indexed conversations
     const result = await discoverAndListAll();
     cachedEndpointMap = result.cascadeToEndpoint;
-    cachedConversations = result.conversations;
+    cachedConversations = { ...cachedConversations, ...result.conversations };
 
-    // Show what we have so far (indexed only)
     postMessage({ command: 'setConversations', data: cachedConversations });
 
     // Step 2: Auto-recover unindexed conversations
@@ -122,11 +129,14 @@ async function handleRefresh(): Promise<void> {
       if (recovery.activated > 0) {
         const refreshed = await discoverAndListAll();
         cachedEndpointMap = refreshed.cascadeToEndpoint;
-        cachedConversations = refreshed.conversations;
+        cachedConversations = { ...cachedConversations, ...refreshed.conversations };
         postMessage({ command: 'setConversations', data: cachedConversations });
         postMessage({ command: 'recoverDone', activated: recovery.activated, total: recovery.total });
       }
     }
+
+    // Step 4: Persist to disk cache
+    writeCache(cachedConversations);
   } catch (e) {
     postMessage({ command: 'error', text: `Discovery failed: ${e}` });
   }
