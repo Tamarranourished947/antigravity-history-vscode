@@ -148,14 +148,15 @@
       .map((w) => w.workspaceFolderAbsoluteUri)
       .filter(Boolean);
     const wsPath = workspaces.length > 0 ? workspaces[0] : '';
-    const wsDisplay = stripFileUri(wsPath);
+    const wsDisplay = toWinPath(stripFileUri(wsPath));
     const wsHtml = wsPath
       ? `<div class="conv-workspace" data-action="openFolder" data-path="${esc(wsPath)}" title="Open workspace in Explorer">📂 ${esc(wsDisplay)}</div>`
       : '';
 
-    const convDir = convDataDir;
-    const convDirHtml = convDir
-      ? `<div class="conv-workspace" data-action="openFolder" data-path="${esc(convDir)}" title="Open data folder in Explorer">💾 ${esc(convDir)}</div>`
+    // Conversation data file (specific .pb file, not the whole folder)
+    const convFile = convDataDir ? toWinPath(convDataDir + '/' + cascadeId + '.pb') : '';
+    const convFileHtml = convFile
+      ? `<div class="conv-workspace" data-action="openFolder" data-path="${esc(convDataDir)}" title="Open data folder in Explorer">💾 ${esc(convFile)}</div>`
       : '';
 
     const createdHtml = created ? `<span class="conv-created">· Created ${esc(created)}</span>` : '';
@@ -167,7 +168,7 @@
           <div class="conv-title" title="${esc(title)}">${esc(title)}</div>
           <div class="conv-meta">${time} · ${stepCount} steps ${createdHtml}</div>
           ${wsHtml}
-          ${convDirHtml}
+          ${convFileHtml}
         </div>
         <div class="conv-actions">
           <button class="btn-export" data-action="exportMd" data-id="${esc(cascadeId)}">MD</button>
@@ -268,7 +269,7 @@
       const ws = (entry[1].workspaces || [])
         .map((w) => w.workspaceFolderAbsoluteUri)
         .filter(Boolean);
-      const label = ws.length > 0 ? stripFileUri(ws[0]) : 'No Workspace';
+      const label = ws.length > 0 ? toWinPath(stripFileUri(ws[0])) : 'No Workspace';
       if (!groups.has(label)) groups.set(label, []);
       groups.get(label).push(entry);
     }
@@ -376,6 +377,17 @@
   function stripFileUri(uri) {
     if (!uri) return '';
     return decodeURIComponent(uri.replace(/^file:\/\/\//i, ''));
+  }
+
+  function toWinPath(p) {
+    if (!p) return '';
+    // Forward to back slashes
+    let out = p.replace(/\//g, '\\');
+    // Capitalize drive letter: d:\ → D:\
+    if (/^[a-z]:\\/.test(out)) {
+      out = out[0].toUpperCase() + out.slice(1);
+    }
+    return out;
   }
 
   // ── Auto-refresh on load ──
