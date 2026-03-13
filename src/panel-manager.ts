@@ -131,7 +131,31 @@ async function handleRefresh(): Promise<void> {
       }
     }
 
-    // Step 4: Persist to disk cache
+    // Step 4: Detect conversations cleaned by Antigravity (in cache but .pb deleted)
+    const convDir = getConvDir();
+    const cleanedIds: string[] = [];
+    for (const id of Object.keys(cachedConversations)) {
+      const pbFile = path.join(convDir, `${id}.pb`);
+      if (!fs.existsSync(pbFile)) {
+        cleanedIds.push(id);
+      }
+    }
+    if (cleanedIds.length > 0) {
+      // Remove cleaned entries from cache
+      for (const id of cleanedIds) {
+        delete cachedConversations[id];
+        delete cachedEndpointMap[id];
+      }
+      postMessage({ command: 'setConversations', data: cachedConversations, convDir });
+      vscode.window.showWarningMessage(
+        `${cleanedIds.length} conversation(s) were auto-cleaned by Antigravity (100-limit). Consider using "Export All" to backup.`,
+        'Export All',
+      ).then((choice) => {
+        if (choice === 'Export All') { handleExportAll(); }
+      });
+    }
+
+    // Step 5: Persist to disk cache
     writeCache(cachedConversations);
   } catch (e) {
     postMessage({ command: 'error', text: `Discovery failed: ${e}` });
@@ -263,8 +287,8 @@ function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri): stri
   <div class="top-bar">
     <input type="text" class="search-input" id="search-input" placeholder="Search conversations...">
     <div class="segmented-control">
-      <button class="seg-btn active" id="group-date">📅 Date</button>
-      <button class="seg-btn" id="group-workspace">📂 Workspace</button>
+      <button class="seg-btn active" id="group-date">Date</button>
+      <button class="seg-btn" id="group-workspace">Workspace</button>
     </div>
     <div class="segmented-control">
       <button class="seg-btn" id="btn-expand-all" title="Expand All">▾ Expand</button>
