@@ -11,6 +11,7 @@
   const statsBar = document.getElementById('stats-bar');
   const listContainer = document.getElementById('list-container');
   const toastEl = document.getElementById('toast');
+  const exportPathBar = document.getElementById('export-path-bar');
   const groupDateBtn = document.getElementById('group-date');
   const groupWorkspaceBtn = document.getElementById('group-workspace');
   const expandAllBtn = document.getElementById('btn-expand-all');
@@ -87,6 +88,20 @@
         break;
       case 'error':
         showError(msg.text);
+        break;
+      case 'setExportPath':
+        if (msg.path && exportPathBar) {
+          exportPathBar.innerHTML = `Export to: <span class="export-path-link" id="export-path-text" title="Click to change">${esc(msg.path)}</span> <button class="export-path-btn" id="btn-change-path">Change</button> <button class="export-path-btn" id="btn-open-path">Open</button>`;
+          document.getElementById('btn-change-path').addEventListener('click', () => {
+            vscode.postMessage({ command: 'changeExportPath' });
+          });
+          document.getElementById('btn-open-path').addEventListener('click', () => {
+            vscode.postMessage({ command: 'openExportFolder' });
+          });
+          document.getElementById('export-path-text').addEventListener('click', () => {
+            vscode.postMessage({ command: 'changeExportPath' });
+          });
+        }
         break;
     }
   });

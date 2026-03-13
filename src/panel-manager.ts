@@ -71,11 +71,30 @@ export function openPanel(context: vscode.ExtensionContext): void {
           break;
         case 'openInExplorer': {
           let folderPath: string = message.path || '';
-          // Convert file:// URI to local path (case-insensitive)
           folderPath = decodeURIComponent(folderPath.replace(/^file:\/\/\//i, ''));
           if (folderPath) {
             vscode.env.openExternal(vscode.Uri.file(folderPath));
           }
+          break;
+        }
+        case 'changeExportPath': {
+          const picked = await vscode.window.showOpenDialog({
+            canSelectFolders: true,
+            canSelectFiles: false,
+            canSelectMany: false,
+            openLabel: 'Select Export Folder',
+          });
+          if (picked && picked[0]) {
+            const newPath = picked[0].fsPath;
+            await vscode.workspace.getConfiguration('aghistory').update('exportPath', newPath, true);
+            postMessage({ command: 'setExportPath', path: newPath });
+          }
+          break;
+        }
+        case 'openExportFolder': {
+          const config = vscode.workspace.getConfiguration('aghistory');
+          const ep = resolveExportPath(config.get<string>('exportPath', './antigravity_export'));
+          vscode.env.openExternal(vscode.Uri.file(ep));
           break;
         }
       }
@@ -108,6 +127,12 @@ async function handleRefresh(): Promise<void> {
     cachedConversations = { ...cachedConversations, ...result.conversations };
 
     postMessage({ command: 'setConversations', data: cachedConversations, convDir: getConvDir() });
+
+    // Send current export path to webview
+    const exportDir = resolveExportPath(
+      vscode.workspace.getConfiguration('aghistory').get<string>('exportPath', './antigravity_export'),
+    );
+    postMessage({ command: 'setExportPath', path: exportDir });
 
     // Step 2: Auto-recover unindexed conversations
     if (result.endpoints.length > 0) {
@@ -303,6 +328,7 @@ function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri): stri
     <button class="btn btn-primary" id="btn-export-all">Export All</button>
   </div>
   <div class="stats-bar" id="stats-bar"></div>
+  <div class="export-path-bar" id="export-path-bar"></div>
   <div id="list-container"></div>
   <div class="toast" id="toast"></div>
   <script nonce="${nonce}" src="${jsUri}"></script>
