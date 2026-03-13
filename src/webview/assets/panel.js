@@ -2,7 +2,6 @@
 // Antigravity History — Conversation Manager Frontend Logic
 
 (function () {
-  /** @type {ReturnType<typeof acquireVsCodeApi>} */
   const vscode = acquireVsCodeApi();
 
   // ── DOM refs ──
@@ -12,10 +11,14 @@
   const statsBar = document.getElementById('stats-bar');
   const listContainer = document.getElementById('list-container');
   const toastEl = document.getElementById('toast');
+  const groupDateBtn = document.getElementById('group-date');
+  const groupWorkspaceBtn = document.getElementById('group-workspace');
 
   // ── State ──
-  let conversations = {}; // { cascadeId: summary }
+  let conversations = {};
   let searchQuery = '';
+  let groupMode = 'date'; // 'date' | 'workspace'
+  let collapsedGroups = new Set();
 
   // ── Init ──
   refreshBtn.addEventListener('click', () => {
@@ -32,6 +35,22 @@
     renderList();
   });
 
+  // Segmented control
+  groupDateBtn.addEventListener('click', () => {
+    groupMode = 'date';
+    groupDateBtn.classList.add('active');
+    groupWorkspaceBtn.classList.remove('active');
+    collapsedGroups.clear();
+    renderList();
+  });
+  groupWorkspaceBtn.addEventListener('click', () => {
+    groupMode = 'workspace';
+    groupWorkspaceBtn.classList.add('active');
+    groupDateBtn.classList.remove('active');
+    collapsedGroups.clear();
+    renderList();
+  });
+
   // ── Receive messages from extension ──
   window.addEventListener('message', (event) => {
     const msg = event.data;
@@ -41,9 +60,10 @@
         renderList();
         break;
       case 'recoverProgress':
-        statsBar.textContent = `Syncing conversations... ${msg.done}/${msg.total}`;
+        showRecoverBanner(msg.done, msg.total);
         break;
       case 'recoverDone':
+        hideRecoverBanner();
         showToast(`Recovered ${msg.activated} conversations ✅`);
         break;
       case 'exportProgress':
@@ -68,11 +88,10 @@
       return;
     }
 
-    // Filter by search
+    // Filter
     const filtered = entries.filter(([_, info]) => {
       if (!searchQuery) return true;
-      const title = (info.summary || '').toLowerCase();
-      return title.includes(searchQuery);
+      return (info.summary || '').toLowerCase().includes(searchQuery);
     });
 
     if (filtered.length === 0) {
@@ -81,24 +100,69 @@
       return;
     }
 
-    // Group by date
-    const groups = groupByDate(filtered);
+    // Group
+    const groups = groupMode === 'workspace' ? groupByWorkspace(filtered) : groupByDate(filtered);
     statsBar.textContent = `${filtered.length} of ${entries.length} conversations`;
 
     let html = '';
-    for (const [groupLabel, items] of groups) {
+    for (const [label, items] of groups) {
+      const isCollapsed = collapsedGroups.has(label);
+      const arrow = isCollapsed ? '▸' : '▾';
       html += `<div class="date-group">`;
-      html += `<div class="date-group-header">${groupLabel} <span class="date-group-count">(${items.length})</span></div>`;
+      html += `<div class="date-group-header" data-group="${esc(label)}">
+        <span class="group-arrow">${arrow}</span> ${esc(label)}
+        <span class="date-group-count">(${items.length})</span>
+      </div>`;
+      html += `<div class="group-items${isCollapsed ? ' collapsed' : ''}">`;
       for (const [cid, info] of items) {
         html += renderCard(cid, info);
       }
-      html += `</div>`;
+      html += `</div></div>`;
     }
     listContainer.innerHTML = html;
+    bindEvents();
+  }
 
-    // Bind card button events
+  function renderCard(cascadeId, info) {
+    const title = info.summary || 'Untitled Conversation';
+    const stepCount = info.stepCount || '?';
+    const time = formatTime(info.lastModifiedTime || info.createdTime);
+    const created = formatCreatedDate(info.createdTime);
+    const status = info.status || '';
+    const statusDot = getStatusDot(status);
+
+    const workspaces = (info.workspaces || [])
+      .map((w) => w.workspaceFolderAbsoluteUri)
+      .filter(Boolean);
+    const wsHtml = workspaces.length > 0
+      ? `<div class="conv-workspace" data-action="openFolder" data-path="${esc(workspaces[0])}" title="Open in Explorer">📂 ${esc(workspaces[0])}</div>`
+      : '';
+
+    const createdHtml = created ? `<span class="conv-created">· Created ${esc(created)}</span>` : '';
+
+    return `
+      <div class="conv-card" data-cascade-id="${esc(cascadeId)}">
+        <div class="conv-icon">${statusDot}</div>
+        <div class="conv-info">
+          <div class="conv-title" title="${esc(title)}">${esc(title)}</div>
+          <div class="conv-meta">${time} · ${stepCount} steps ${createdHtml}</div>
+          ${wsHtml}
+        </div>
+        <div class="conv-actions">
+          <button class="btn-export" data-action="exportMd" data-id="${esc(cascadeId)}">MD</button>
+          <button class="btn-export" data-action="exportJson" data-id="${esc(cascadeId)}">JSON</button>
+          <button class="btn-copy" data-action="copyId" data-id="${esc(cascadeId)}" title="Copy Cascade ID">📋</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Event binding ──
+  function bindEvents() {
+    // Card action buttons
     listContainer.querySelectorAll('[data-action]').forEach((btn) => {
       btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const action = btn.getAttribute('data-action');
         const cascadeId = btn.getAttribute('data-id');
         if (action === 'exportMd') {
@@ -118,47 +182,37 @@
         }
       });
     });
+
+    // Collapsible group headers
+    listContainer.querySelectorAll('.date-group-header').forEach((header) => {
+      header.addEventListener('click', () => {
+        const group = header.getAttribute('data-group');
+        if (collapsedGroups.has(group)) {
+          collapsedGroups.delete(group);
+        } else {
+          collapsedGroups.add(group);
+        }
+        renderList();
+      });
+    });
   }
 
-  function renderCard(cascadeId, info) {
-    const title = info.summary || 'Untitled Conversation';
-    const stepCount = info.stepCount || '?';
-    const time = formatTime(info.lastModifiedTime || info.createdTime);
-    const workspaces = (info.workspaces || [])
-      .map((w) => w.workspaceFolderAbsoluteUri)
-      .filter(Boolean);
-    const wsHtml = workspaces.length > 0
-      ? `<div class="conv-workspace" data-action="openFolder" data-path="${escapeHtml(workspaces[0])}" title="Open in Explorer">📂 ${escapeHtml(workspaces[0])}</div>`
-      : '';
-
-    return `
-      <div class="conv-card" data-cascade-id="${escapeHtml(cascadeId)}">
-        <div class="conv-icon">💬</div>
-        <div class="conv-info">
-          <div class="conv-title" title="${escapeHtml(title)}">${escapeHtml(title)}</div>
-          <div class="conv-meta">${time} · ${stepCount} steps</div>
-          ${wsHtml}
-        </div>
-        <div class="conv-actions">
-          <button class="btn-export" data-action="exportMd" data-id="${escapeHtml(cascadeId)}">MD</button>
-          <button class="btn-export" data-action="exportJson" data-id="${escapeHtml(cascadeId)}">JSON</button>
-          <button class="btn-more" data-action="copyId" data-id="${escapeHtml(cascadeId)}" title="Copy Cascade ID">⋯</button>
-        </div>
-      </div>
-    `;
+  // ── Status indicator ──
+  function getStatusDot(status) {
+    if (status === 'STATUS_ACTIVE' || status === 'active') return '<span class="status-dot active">●</span>';
+    if (status === 'STATUS_COMPLETED' || status === 'completed') return '<span class="status-dot completed">●</span>';
+    return '<span class="status-dot idle">●</span>';
   }
 
-  // ── Date grouping ──
+  // ── Grouping ──
   function groupByDate(entries) {
     const now = new Date();
     const todayStr = dateKey(now);
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = dateKey(yesterday);
-
     const groups = new Map();
 
-    // Sort by time descending
     entries.sort((a, b) => {
       const ta = a[1].lastModifiedTime || a[1].createdTime || '';
       const tb = b[1].lastModifiedTime || b[1].createdTime || '';
@@ -166,8 +220,7 @@
     });
 
     for (const entry of entries) {
-      const info = entry[1];
-      const ts = info.lastModifiedTime || info.createdTime || '';
+      const ts = entry[1].lastModifiedTime || entry[1].createdTime || '';
       let label = 'Earlier';
       if (ts) {
         const d = dateKey(new Date(ts));
@@ -181,60 +234,100 @@
     return groups;
   }
 
-  function dateKey(d) {
-    return d.toISOString().slice(0, 10);
+  function groupByWorkspace(entries) {
+    const groups = new Map();
+
+    entries.sort((a, b) => {
+      const ta = a[1].lastModifiedTime || a[1].createdTime || '';
+      const tb = b[1].lastModifiedTime || b[1].createdTime || '';
+      return tb.localeCompare(ta);
+    });
+
+    for (const entry of entries) {
+      const ws = (entry[1].workspaces || [])
+        .map((w) => w.workspaceFolderAbsoluteUri)
+        .filter(Boolean);
+      const label = ws.length > 0 ? ws[0] : 'No Workspace';
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push(entry);
+    }
+    return groups;
   }
+
+  // ── Time helpers ──
+  function dateKey(d) { return d.toISOString().slice(0, 10); }
 
   function formatTime(ts) {
     if (!ts) return '–';
     try {
+      return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch { return ts.slice(11, 16) || '–'; }
+  }
+
+  function formatCreatedDate(ts) {
+    if (!ts) return '';
+    try {
       const d = new Date(ts);
-      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    } catch {
-      return ts.slice(11, 16) || '–';
+      const now = new Date();
+      // Only show if created date differs from today
+      if (dateKey(d) === dateKey(now)) return '';
+      return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    } catch { return ''; }
+  }
+
+  // ── Recover banner ──
+  function showRecoverBanner(done, total) {
+    let banner = document.getElementById('recover-banner');
+    if (!banner) {
+      banner = document.createElement('div');
+      banner.id = 'recover-banner';
+      banner.className = 'recover-banner';
+      listContainer.parentNode.insertBefore(banner, listContainer);
+    }
+    const pct = Math.round((done / total) * 100);
+    banner.innerHTML = `
+      <div class="recover-text">🔄 Syncing conversations... ${done}/${total}</div>
+      <div class="recover-bar-bg"><div class="recover-bar-fill" style="width:${pct}%"></div></div>
+    `;
+  }
+
+  function hideRecoverBanner() {
+    const banner = document.getElementById('recover-banner');
+    if (banner) {
+      banner.classList.add('fade-out');
+      setTimeout(() => banner.remove(), 500);
     }
   }
 
   // ── Empty states ──
   function getEmptyStateHtml() {
-    return `
-      <div class="empty-state">
-        <div class="empty-state-icon">🔮</div>
-        <div class="empty-state-title">No Conversations Found</div>
-        <div class="empty-state-desc">Make sure Antigravity is running with an active workspace.</div>
-        <button class="btn btn-primary" onclick="document.getElementById('btn-refresh').click()">🔄 Refresh</button>
-      </div>
-    `;
+    return `<div class="empty-state">
+      <div class="empty-state-icon">🔮</div>
+      <div class="empty-state-title">No Conversations Found</div>
+      <div class="empty-state-desc">Make sure Antigravity is running with an active workspace.</div>
+      <button class="btn btn-primary" onclick="document.getElementById('btn-refresh').click()">🔄 Refresh</button>
+    </div>`;
   }
 
   function getNoResultsHtml(query) {
-    return `
-      <div class="empty-state">
-        <div class="empty-state-icon">🔍</div>
-        <div class="empty-state-title">No matches for "${escapeHtml(query)}"</div>
-        <div class="empty-state-desc">Try a different search term.</div>
-      </div>
-    `;
+    return `<div class="empty-state">
+      <div class="empty-state-icon">🔍</div>
+      <div class="empty-state-title">No matches for "${esc(query)}"</div>
+      <div class="empty-state-desc">Try a different search term.</div>
+    </div>`;
   }
 
   function showLoading() {
-    listContainer.innerHTML = `
-      <div class="loading">
-        <div class="spinner"></div>
-        <div>Discovering Antigravity instances...</div>
-      </div>
-    `;
+    listContainer.innerHTML = `<div class="loading"><div class="spinner"></div><div>Discovering Antigravity instances...</div></div>`;
   }
 
   function showError(text) {
-    listContainer.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">⚠️</div>
-        <div class="empty-state-title">Error</div>
-        <div class="empty-state-desc">${escapeHtml(text)}</div>
-        <button class="btn btn-primary" onclick="document.getElementById('btn-refresh').click()">🔄 Retry</button>
-      </div>
-    `;
+    listContainer.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">⚠️</div>
+      <div class="empty-state-title">Error</div>
+      <div class="empty-state-desc">${esc(text)}</div>
+      <button class="btn btn-primary" onclick="document.getElementById('btn-refresh').click()">🔄 Retry</button>
+    </div>`;
   }
 
   // ── Toast ──
@@ -247,7 +340,7 @@
   }
 
   // ── Utils ──
-  function escapeHtml(str) {
+  function esc(str) {
     const div = document.createElement('div');
     div.textContent = str;
     return div.innerHTML;

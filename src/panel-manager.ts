@@ -252,6 +252,10 @@ function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri): stri
 <body>
   <div class="top-bar">
     <input type="text" class="search-input" id="search-input" placeholder="Search conversations...">
+    <div class="segmented-control">
+      <button class="seg-btn active" id="group-date">📅 Date</button>
+      <button class="seg-btn" id="group-workspace">📂 Workspace</button>
+    </div>
     <button class="btn btn-icon" id="btn-refresh" title="Refresh">🔄</button>
     <button class="btn btn-primary" id="btn-export-all">⬇️ Export All</button>
   </div>

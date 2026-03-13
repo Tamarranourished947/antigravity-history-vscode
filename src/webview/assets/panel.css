@@ -1,6 +1,5 @@
 /* Antigravity History — Conversation Manager Styles */
 
-/* ── Reset & Base ── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -20,10 +19,12 @@ body {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .search-input {
   flex: 1;
+  min-width: 160px;
   padding: 6px 12px;
   border: 1px solid var(--vscode-input-border, #3c3c3c);
   border-radius: 6px;
@@ -32,13 +33,37 @@ body {
   font-size: 13px;
   outline: none;
 }
-.search-input:focus {
-  border-color: var(--vscode-focusBorder, #007acc);
+.search-input:focus { border-color: var(--vscode-focusBorder, #007acc); }
+.search-input::placeholder { color: var(--vscode-input-placeholderForeground, #888); }
+
+/* ── Segmented Control ── */
+.segmented-control {
+  display: inline-flex;
+  border: 1px solid var(--vscode-input-border, #3c3c3c);
+  border-radius: 6px;
+  overflow: hidden;
 }
-.search-input::placeholder {
-  color: var(--vscode-input-placeholderForeground, #888);
+.seg-btn {
+  padding: 5px 10px;
+  border: none;
+  background: transparent;
+  color: var(--vscode-descriptionForeground, #888);
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s, color 0.15s;
+}
+.seg-btn:not(:last-child) {
+  border-right: 1px solid var(--vscode-input-border, #3c3c3c);
+}
+.seg-btn.active {
+  background: var(--vscode-button-background, #0e639c);
+  color: var(--vscode-button-foreground, #fff);
+}
+.seg-btn:hover:not(.active) {
+  background: var(--vscode-list-hoverBackground, rgba(255,255,255,0.06));
 }
 
+/* ── Buttons ── */
 .btn {
   padding: 5px 12px;
   border: 1px solid var(--vscode-button-border, transparent);
@@ -51,33 +76,55 @@ body {
   transition: opacity 0.15s;
 }
 .btn:hover { opacity: 0.85; }
-
 .btn-icon {
   padding: 5px 8px;
   background: transparent;
   color: var(--vscode-foreground);
   border: 1px solid var(--vscode-input-border, #3c3c3c);
 }
-
 .btn-primary {
   background: var(--vscode-button-background, #0e639c);
   color: var(--vscode-button-foreground, #fff);
 }
-.btn-primary:hover {
-  background: var(--vscode-button-hoverBackground, #1177bb);
-}
+.btn-primary:hover { background: var(--vscode-button-hoverBackground, #1177bb); }
 
 /* ── Stats Bar ── */
 .stats-bar {
   font-size: 12px;
   color: var(--vscode-descriptionForeground, #888);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+/* ── Recover Banner ── */
+.recover-banner {
+  padding: 10px 16px;
+  border: 1px solid var(--vscode-notificationsInfoIcon-foreground, #3794ff);
+  border-radius: 8px;
+  background: rgba(55, 148, 255, 0.08);
+  margin-bottom: 12px;
+  transition: opacity 0.5s;
+}
+.recover-banner.fade-out { opacity: 0; }
+.recover-text {
+  font-size: 12px;
+  color: var(--vscode-foreground);
+  margin-bottom: 6px;
+}
+.recover-bar-bg {
+  height: 4px;
+  background: var(--vscode-panel-border, #2d2d2d);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.recover-bar-fill {
+  height: 100%;
+  background: var(--vscode-notificationsInfoIcon-foreground, #3794ff);
+  border-radius: 2px;
+  transition: width 0.3s ease;
 }
 
 /* ── Date Group ── */
-.date-group {
-  margin-bottom: 16px;
-}
+.date-group { margin-bottom: 12px; }
 .date-group-header {
   font-size: 12px;
   font-weight: 600;
@@ -85,56 +132,65 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 8px;
-  padding-bottom: 4px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--vscode-panel-border, #2d2d2d);
+  cursor: pointer;
+  user-select: none;
+  border-radius: 4px 4px 0 0;
+  transition: background 0.15s;
 }
-.date-group-count {
-  font-weight: 400;
-  opacity: 0.7;
+.date-group-header:hover {
+  background: var(--vscode-list-hoverBackground, rgba(255,255,255,0.04));
 }
+.group-arrow {
+  display: inline-block;
+  width: 12px;
+  font-size: 11px;
+}
+.date-group-count { font-weight: 400; opacity: 0.7; }
+.group-items { transition: max-height 0.2s ease; }
+.group-items.collapsed { display: none; }
+
+/* ── Status Dot ── */
+.status-dot {
+  font-size: 10px;
+  margin-top: 5px;
+}
+.status-dot.active { color: #4ec94e; }
+.status-dot.completed { color: var(--vscode-descriptionForeground, #666); }
+.status-dot.idle { color: var(--vscode-descriptionForeground, #555); }
 
 /* ── Conversation Card ── */
 .conv-card {
-  padding: 12px 16px;
+  padding: 10px 14px;
   border: 1px solid var(--vscode-panel-border, #2d2d2d);
   border-radius: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   transition: border-color 0.15s, background 0.15s;
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
 }
 .conv-card:hover {
   border-color: var(--vscode-focusBorder, #007acc);
   background: var(--vscode-list-hoverBackground, rgba(255,255,255,0.04));
 }
-
-.conv-icon {
-  font-size: 18px;
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
-.conv-info {
-  flex: 1;
-  min-width: 0;
-}
-
+.conv-icon { flex-shrink: 0; width: 16px; text-align: center; }
+.conv-info { flex: 1; min-width: 0; }
 .conv-title {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--vscode-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-
 .conv-meta {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--vscode-descriptionForeground, #888);
-  margin-top: 2px;
+  margin-top: 1px;
 }
-
+.conv-created { opacity: 0.7; }
 .conv-workspace {
   font-size: 11px;
   color: var(--vscode-descriptionForeground, #666);
@@ -152,13 +208,13 @@ body {
   background: var(--vscode-list-hoverBackground, rgba(255,255,255,0.04));
 }
 
+/* ── Card Actions ── */
 .conv-actions {
   display: flex;
   gap: 4px;
   flex-shrink: 0;
   align-items: center;
 }
-
 .btn-export {
   padding: 3px 8px;
   font-size: 11px;
@@ -174,17 +230,16 @@ body {
   background: var(--vscode-button-background, #0e639c);
   color: var(--vscode-button-foreground, #fff);
 }
-
-.btn-more {
+.btn-copy {
   padding: 3px 6px;
   background: transparent;
   border: none;
-  color: var(--vscode-descriptionForeground, #888);
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   border-radius: 4px;
+  transition: background 0.15s;
 }
-.btn-more:hover {
+.btn-copy:hover {
   background: var(--vscode-list-hoverBackground, rgba(255,255,255,0.08));
 }
 
@@ -194,10 +249,7 @@ body {
   padding: 60px 20px;
   color: var(--vscode-descriptionForeground, #888);
 }
-.empty-state-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
+.empty-state-icon { font-size: 48px; margin-bottom: 16px; }
 .empty-state-title {
   font-size: 18px;
   font-weight: 600;
@@ -213,15 +265,10 @@ body {
 }
 
 /* ── Loading ── */
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: var(--vscode-descriptionForeground, #888);
-}
+.loading { text-align: center; padding: 40px; color: var(--vscode-descriptionForeground, #888); }
 .spinner {
   display: inline-block;
-  width: 24px;
-  height: 24px;
+  width: 24px; height: 24px;
   border: 2px solid var(--vscode-panel-border, #444);
   border-top-color: var(--vscode-focusBorder, #007acc);
   border-radius: 50%;
@@ -233,8 +280,7 @@ body {
 /* ── Toast ── */
 .toast {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
+  bottom: 16px; right: 16px;
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 12px;
