@@ -1,4 +1,4 @@
-# Antigravity History
+# Every prompt deserves a history.
 
 [![OpenVSX](https://img.shields.io/open-vsx/dt/neo1027144/antigravity-history?label=OpenVSX%20Downloads&color=blueviolet)](https://open-vsx.org/extension/neo1027144/antigravity-history)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
@@ -6,7 +6,7 @@
 
 **Browse, search, and export your Antigravity AI conversations — right inside your IDE.**
 
-> *Every conversation is worth keeping. Don't let a single insight slip away.*
+> *Never lose a brilliant solution, a debugging insight, or an architectural decision again.*
 
 [中文说明](#中文说明) | [English](#features)
 
@@ -91,11 +91,11 @@ Apache 2.0 — see [LICENSE](LICENSE)
 
 ---
 
-# 中文说明
+# 每一次提问，都值得被记录。
 
 **在 IDE 内浏览、搜索和导出你的 Antigravity AI 对话记录。**
 
-> *每一段对话都值得留存，别让任何灵感悄然溜走。*
+> *别让那些灵光乍现的解决方案、调试思路和架构决策悄然消逝。*
 
 ![面板预览](docs/screenshots/dashboard.png)
 
