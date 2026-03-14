@@ -1,6 +1,6 @@
 {
   "name": "antigravity-history",
-  "displayName": "Antigravity History",
+  "displayName": "Antigravity History - Browse & Export AI Chat",
   "description": "Browse, search, and export your Antigravity AI conversations — with full fidelity. View AI thinking chains, code diffs, and command outputs in a beautiful chat UI.",
   "version": "0.1.0",
   "publisher": "neo1027144",
@@ -14,9 +14,10 @@
     "vscode": "^1.85.0"
   },
   "categories": [
+    "AI",
+    "Chat",
     "Other",
-    "Visualization",
-    "Data Science"
+    "Visualization"
   ],
   "keywords": [
     "antigravity",
@@ -31,8 +32,12 @@
     "markdown",
     "json",
     "local",
-    "thinking",
-    "browse"
+    "browse",
+    "sync",
+    "recovery",
+    "knowledge-base",
+    "search",
+    "conversations"
   ],
   "activationEvents": [
     "onStartupFinished"
