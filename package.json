@@ -15,7 +15,8 @@
   },
   "categories": [
     "Other",
-    "Visualization"
+    "Visualization",
+    "Data Science"
   ],
   "keywords": [
     "antigravity",
@@ -24,8 +25,14 @@
     "export",
     "ai",
     "chat",
+    "llm",
+    "backup",
+    "save",
+    "markdown",
+    "json",
+    "local",
     "thinking",
-    "backup"
+    "browse"
   ],
   "activationEvents": [
     "onStartupFinished"

@@ -1,5 +1,9 @@
 # Antigravity History
 
+[![OpenVSX](https://img.shields.io/open-vsx/dt/neo1027144/antigravity-history?label=OpenVSX%20Downloads&color=blueviolet)](https://open-vsx.org/extension/neo1027144/antigravity-history)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![GitHub Stars](https://img.shields.io/github/stars/neo1027144-creator/antigravity-history-vscode?style=social)](https://github.com/neo1027144-creator/antigravity-history-vscode)
+
 **Browse, search, and export your Antigravity AI conversations — right inside your IDE.**
 
 [中文说明](#中文说明) | [English](#features)
@@ -37,7 +41,8 @@
 1. Download the `.vsix` file from [Releases](https://github.com/neo1027144/antigravity-history-vscode/releases)
 2. In VS Code / Antigravity: `Ctrl+Shift+P` → `Install from VSIX`
 
-### From Marketplace (Coming Soon)
+### From OpenVSX
+Search **"Antigravity History"** in the Extensions panel, or run:
 ```
 ext install neo1027144.antigravity-history
 ```
@@ -113,7 +118,8 @@ Apache 2.0 — see [LICENSE](LICENSE)
 1. 从 [Releases](https://github.com/neo1027144/antigravity-history-vscode/releases) 下载 `.vsix` 文件
 2. 在 VS Code / Antigravity 中：`Ctrl+Shift+P` → `Install from VSIX`
 
-### 应用市场（即将上线）
+### 从 OpenVSX 安装
+在扩展面板搜索 **"Antigravity History"**，或执行：
 ```
 ext install neo1027144.antigravity-history
 ```
