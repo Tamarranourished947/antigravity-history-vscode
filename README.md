@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![GitHub Stars](https://img.shields.io/github/stars/neo1027144-creator/antigravity-history-vscode?style=social)](https://github.com/neo1027144-creator/antigravity-history-vscode)
 
+> ⚠️ **Important:** Please make sure your **Antigravity IDE is updated to the latest version** before using this extension. Older versions may cause "Client is not running" errors and prevent conversations from loading. 👉 [**Download / Update Antigravity**](https://antigravity.google/releases)
+
 **Browse, search, and export your Antigravity AI conversations — right inside your IDE.**
 
 > *Never lose a brilliant solution, a debugging insight, or an architectural decision again.*
@@ -71,8 +73,9 @@ ext install neo1027144.antigravity-history
 
 ## Requirements
 
-- [Antigravity](https://www.antigravity.com/) IDE must be running with at least one active workspace
-- Works on **Windows**, **macOS**, and **Linux**
+- [Antigravity](https://antigravity.google/releases) IDE (latest version recommended)
+- At least one active workspace open in Antigravity
+- Tested and verified on **Windows**
 
 ## Roadmap
 
@@ -92,6 +95,8 @@ Apache 2.0 — see [LICENSE](LICENSE)
 ---
 
 # 每一次提问，都值得被记录。
+
+> ⚠️ **重要提示：** 使用本插件前，请确保你的 **Antigravity IDE 已升级到最新版本**。旧版本可能导致「Client is not running」错误，无法加载对话列表。👉 [**下载 / 更新 Antigravity**](https://antigravity.google/releases)
 
 **在 IDE 内浏览、搜索和导出你的 Antigravity AI 对话记录。**
 
@@ -127,6 +132,7 @@ Apache 2.0 — see [LICENSE](LICENSE)
 - **100% 本地化** — 数据不离开你的电脑
 - **只读访问** — 不修改任何 Antigravity 数据
 - **零遥测** — 不发送任何外部网络请求
+
 
 ## 安装方式
 
