@@ -32,3 +32,19 @@ jobs:
         with:
           name: vsix
           path: '*.vsix'
+
+      - name: Create GitHub Release on public repo
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: neo1027144-creator/antigravity-history-vscode
+          token: ${{ secrets.PUBLIC_REPO_TOKEN }}
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          body: |
+            ## Antigravity History ${{ github.ref_name }}
+
+            Install from [OpenVSX](https://open-vsx.org/extension/neo1027144/antigravity-history) or download the `.vsix` below.
+          files: '*.vsix'
+          draft: false
+          prerelease: false
+
