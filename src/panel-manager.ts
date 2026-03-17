@@ -188,7 +188,11 @@ async function handleRefresh(): Promise<void> {
   }
 }
 
-async function handleExport(cascadeId: string, format: string, overrideDir?: string, overrideTs?: string): Promise<void> {
+async function handleExport(
+  cascadeId: string, format: string,
+  overrideDir?: string, overrideTs?: string,
+  jsonCollector?: Record<string, unknown>[],
+): Promise<void> {
   // Try specific endpoint first, fallback to any available endpoint
   let ep: { port: number; csrf: string } | undefined = cachedEndpointMap[cascadeId];
   if (!ep) {
@@ -212,7 +216,6 @@ async function handleExport(cascadeId: string, format: string, overrideDir?: str
     const steps = await getTrajectorySteps(ep.port, ep.csrf, cascadeId);
     const messages = parseSteps(steps, fieldLevel);
 
-    // Use cached summary for title and metadata
     const cached = cachedConversations[cascadeId];
     const title = cached?.summary || `conversation_${cascadeId.slice(0, 8)}`;
     const metadata: TrajectorySummary = cached || { stepCount: steps.length };
@@ -224,9 +227,15 @@ async function handleExport(cascadeId: string, format: string, overrideDir?: str
     }
     if (format === 'json' || format === 'all') {
       const record = buildConversationRecord(cascadeId, title, metadata, messages);
-      const jsonStr = formatJson([record]);
-      const jsonPath = writeConversation(jsonStr, title, outputDir, '.json', ts);
-      postMessage({ command: 'exportDone', text: `Exported: ${path.basename(jsonPath)}` });
+      if (jsonCollector) {
+        // Batch mode: collect into array, write combined file later
+        jsonCollector.push(record as Record<string, unknown>);
+      } else {
+        // Single export: write individual json file
+        const jsonStr = formatJson([record]);
+        const jsonPath = writeConversation(jsonStr, title, outputDir, '.json', ts);
+        postMessage({ command: 'exportDone', text: `Exported: ${path.basename(jsonPath)}` });
+      }
     }
   } catch (e) {
     vscode.window.showErrorMessage(`Export failed: ${e}`);
@@ -255,7 +264,9 @@ async function handleExportAll(): Promise<void> {
     },
     async (progress, token) => {
       let done = 0;
+      let failed = 0;
       const total = cascadeIds.length;
+      const jsonCollector: Record<string, unknown>[] = [];
 
       for (const cid of cascadeIds) {
         if (token.isCancellationRequested) { break; }
@@ -266,15 +277,52 @@ async function handleExportAll(): Promise<void> {
         });
 
         try {
-          await handleExport(cid, exportFormat, outputDir, ts);
+          await handleExport(cid, exportFormat, outputDir, ts, jsonCollector);
         } catch {
-          // Skip failed exports silently
+          failed++;
         }
         done++;
       }
 
+      // Write combined JSON file
+      if ((exportFormat === 'json' || exportFormat === 'all') && jsonCollector.length > 0) {
+        const combinedJson = formatJson(jsonCollector);
+        const jsonPath = path.join(outputDir, `conversations_export_${ts}.json`);
+        fs.mkdirSync(outputDir, { recursive: true });
+        fs.writeFileSync(jsonPath, combinedJson, 'utf-8');
+      }
+
+      // Generate export report
+      const reportLines: string[] = [
+        '============================================================',
+        '  EXPORT REPORT',
+        '============================================================',
+        '',
+        `  Time:      ${new Date().toISOString().slice(0, 19).replace('T', ' ')}`,
+        `  Total:     ${total}`,
+        `  Exported:  ${done - failed}`,
+        `  Failed:    ${failed}`,
+        '',
+        '------------------------------------------------------------',
+        `  EXPORTED CONVERSATIONS (${done - failed})`,
+        '------------------------------------------------------------',
+      ];
+      let idx = 1;
+      for (const cid of cascadeIds) {
+        const conv = cachedConversations[cid];
+        const title = conv?.summary || `[unknown] ${cid.slice(0, 8)}...`;
+        const steps = conv?.stepCount ?? '?';
+        reportLines.push(`  ${String(idx).padStart(3)}. ${title}`);
+        reportLines.push(`       Steps: ${steps}  |  ID: ${cid.slice(0, 8)}...`);
+        idx++;
+      }
+      reportLines.push('', '============================================================');
+      const reportPath = path.join(outputDir, `export_report_${ts}.txt`);
+      fs.mkdirSync(outputDir, { recursive: true });
+      fs.writeFileSync(reportPath, reportLines.join('\n'), 'utf-8');
+
       const choice = await vscode.window.showInformationMessage(
-        `Exported ${done} conversations to ${outputDir}`,
+        `Exported ${done - failed} conversations to ${outputDir}`,
         'Open Folder',
       );
       if (choice === 'Open Folder') {

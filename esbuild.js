@@ -86,7 +86,8 @@ async function main() {
 
     // Production: apply deep obfuscation after esbuild
     if (production) {
-      obfuscateBundle();
+      // TEMP: disabled for testing
+      // obfuscateBundle();
     }
   }
 }
